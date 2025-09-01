@@ -1,7 +1,13 @@
-import 'package:twopointsdb/utility.dart';
-
-
+import 'package:twopointsdb/db.dart';
 
 void main() {
-  CreateFile("hola.txt", "adios");
+  DBController()
+    .DB("MyDB")
+    .Stack("mystack")
+    .Query([
+      Insert<String> ([
+        { "myKey": "Hola, esto es un string" }
+      ])
+    ])
+  ;
 }
