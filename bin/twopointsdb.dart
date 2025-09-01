@@ -6,7 +6,7 @@ void main() {
     .Stack("mystack")
     .Query([
       Insert<String> ([
-        { "myKey": "Hola, esto es un string" }
+        { "myKey": "your string here" }
       ])
     ])
   ;
