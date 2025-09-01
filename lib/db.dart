@@ -1,18 +1,20 @@
 import 'package:twopointsdb/utility.dart';
 
-abstract class DBAction {
-  void run(DBController db);
+abstract class DBAction<T> {
+  T run(DBController db);
 }
 
-class Insert<T> implements DBAction {
+typedef Dataset<T> = List<Map<String, T>>;
+
+class Insert<T> implements DBAction<void> {
   List<Map<String, T>> insertData;
-  String ID = SpawnID(32);
 
   Insert(this.insertData);
 
   @override
   void run(DBController db) {
     for (var doc in insertData) {
+      String ID = SpawnID(32);
       for (var key in doc.keys) {
         for (var value in doc.values) {
           WriteFile(
@@ -25,6 +27,27 @@ class Insert<T> implements DBAction {
         }
       }
     }
+  }
+}
+
+class Find<T> implements DBAction<List<Map<String, T>>> {
+  List<String> keys;
+
+  Find(this.keys);
+
+  @override
+  List<Map<String, T>> run(DBController db) {
+    List<Map<String, T>> wrappedValues = [];
+    for (var key in keys) {
+      for (var line in WrapLines(ReadFile(db.actualDBStackPath!))) {
+        final List<String> secs = line.split('::');
+        if (secs[0].trim() == key) {
+          wrappedValues.add({key: secs[2].split('||')[0].trim() as T});
+        }
+      }
+    }
+
+    return wrappedValues;
   }
 }
 
@@ -67,10 +90,24 @@ class DBController {
     return this;
   }
 
-  DBController Query(List<DBAction> actions) {
-    for (var action in actions) {
-      action.run(this);
+  List<F> Query<F>(List<DBAction> actions) {
+    List<F> returnQueue = [];
+    try {
+      for (var action in actions) {
+        final result = action.run(this);
+
+        if (result is F) {
+          returnQueue.add(result);
+        } else if (result != null) {
+          throw Exception(
+            "Types don't match with the required value in the query.",
+          );
+        }
+      }
+    } catch (e) {
+      print(e);
     }
-    return this;
+
+    return returnQueue;
   }
 }

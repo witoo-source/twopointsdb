@@ -28,6 +28,14 @@ bool CheckFile(String fileName) {
   return File('$fileName.tp.db').existsSync();
 }
 
+String ReadFile(String fileName) {
+  return File('$fileName.tp.db').readAsStringSync();
+}
+
+List<String> WrapLines(String content) {
+  return content.split('\n');
+}
+
 String SpawnID(int length) {
   List<String> ID = [];
   final List<String> alphaChars = [
