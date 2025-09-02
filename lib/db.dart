@@ -5,11 +5,12 @@ abstract class DBAction<T> {
 }
 
 typedef Dataset<T> = List<Map<String, T>>;
+typedef Stack<T> = Map<String, T>;
 
-class Insert<T> implements DBAction<void> {
+class INSERT<T> implements DBAction<void> {
   List<Map<String, T>> insertData;
 
-  Insert(this.insertData);
+  INSERT(this.insertData);
 
   @override
   void run(DBController db) {
@@ -30,10 +31,10 @@ class Insert<T> implements DBAction<void> {
   }
 }
 
-class Find<T> implements DBAction<List<Map<String, T>>> {
+class FIND<T> implements DBAction<List<Map<String, T>>> {
   List<String> keys;
 
-  Find(this.keys);
+  FIND(this.keys);
 
   @override
   List<Map<String, T>> run(DBController db) {
@@ -48,6 +49,21 @@ class Find<T> implements DBAction<List<Map<String, T>>> {
     }
 
     return wrappedValues;
+  }
+}
+
+class GET implements DBAction<Map<String, dynamic>> {
+  @override
+  Map<String, dynamic> run(DBController db) {
+    Map<String, dynamic> stackDatasets = {};
+
+    for (var line in WrapLines(ReadFile(db.actualDBStackPath!))) {
+      final List<String> secs = line.split(' :: ');
+      if (secs.length < 3) continue;
+      stackDatasets[secs[0].trim()] = secs[2].split('||')[0].trim();
+    }
+
+    return stackDatasets;
   }
 }
 
