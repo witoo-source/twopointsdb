@@ -1,7 +1,7 @@
 # TwopointsDB 
 
 ## What is TwopointsDB?
-- This DB system has been developed with the purpose of allowing y'all to manage constant data with an easy and declarative API statements. This project is made in `Dart` but will be ported soon to the main programming languages (`JavaScript/TypeScript`, `Python`, `.NET C#`, etc..). This system just creates local DBs, but the main idea is to launch a cloud-based service to host your DBs in the cloud as some other services do.
+- This DB system has been developed with the purpose of allowing y'all to manage constant data with easy and declarative API statements. This project is made in `Dart` but will be ported soon to the main programming languages (`JavaScript/TypeScript`, `Python`, `.NET C#`, etc..). This system just creates local DBs, but the main idea is to launch a cloud-based service to host your DBs in the cloud as some other services do.
 
 ## How does TwopointsDB work?
 
