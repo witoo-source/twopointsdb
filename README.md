@@ -5,7 +5,7 @@
 
 ## How does TwopointsDB work?
 
-Well, TwopointsDB use a main class known as `DBController`, there is where you call all the statements (like DB creations, Stacks creations and the Query's). The systems works creating directories (the DBs) and files (the Stacks), the the querys make their function in the selected Stack (a file).
+Well, TwopointsDB use a main class known as `DBController`, there is where you call all the statements (like DB creations, Stacks creations and the Query's). The systems works creating directories (the DBs) and files (the Stacks), then, the querys make their function in the selected Stack (a file).
 
 > Here there's an example of how do you initialize a new DB:
 
