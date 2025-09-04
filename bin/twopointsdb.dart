@@ -6,9 +6,6 @@ void main() {
     .DB("MyDB")
     .Stack("mystack")
     .Query<Stack<dynamic>>([
-      INSERT<bool>([
-        {"gooned": true}
-      ]),
       GET()
     ])[0]
   );
