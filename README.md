@@ -5,7 +5,21 @@
 
 ## How does TwopointsDB work?
 
-Well, TwopointsDB use a main class known as `DBController`, there is where you call all the statements (like DB creations, Stacks creations and the Query's). The systems works creating directories (the DBs) and files (the Stacks), then, the querys make their function in the selected Stack (a file).
+Well, TwopointsDB use a main class known as `DBController`, there is where you call all the statements (like DB creations, Stacks creations and the Query's). The systems works creating directories (the DBs) and files (the Stacks), then, the querys make their function in the selected Stack (a file). The internal engine saves the data in a sequence of bytes structured like this:
+- ### Header
+  - 01 <- `represents the number of datasets which are available to read (max 255 per stack)`
+- ### Key structure
+  - 03 <- `represents the lenght of the next KEY to be readed`
+  - 7B <- `represents the ASCII value for the char[1] of the KEY`
+  - 9C <- `represents the ASCII value for the char[2] of the KEY`
+  - 5J <- `represents the ASCII value for the char[3] of the KEY`
+- ### Type
+  - 01 <- `represents the typeID of the actual VALUE (string[01], int[02] and boolean[03])`
+- ### Value structure
+  - 02 <- `represents the lenght of the next VALUE to be readed`
+  - 2L <- `represents the ASCII value for the char[1] of the VALUE`
+  - 8P <- `represents the ASCII value for the char[2] of the VALUE`
+
 
 > Here there's an example of how do you initialize a new DB:
 
@@ -17,7 +31,7 @@ void main() {
     .DB("MyDB")
     .Stack("mystack")
     .Query([
-      Insert<String> ([
+      INSERT<String> ([
         { "myKey": "your string here" }
       ])
     ])
@@ -35,7 +49,7 @@ void main() {
   .Query([]) // It spawns a new list of Querys (Array) which expects an array of "DBAction" classes.
   ```
 - ```dart
-  Insert<String> ([                      // It calls
+  INSERT<String> ([                      // It calls
         { "myKey": "your string here" }  // the function
   ])                                     // to insert data.
   ```
