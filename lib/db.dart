@@ -22,7 +22,6 @@ class INSERT<T> implements DBAction<void> {
 
     RandomAccessFile initialBuffer = file.openSync(mode: FileMode.read);
     int currentCount = initialBuffer.readByteSync();
-    print(currentCount);
     initialBuffer.closeSync();
 
     for (var doc in insertData) {
@@ -62,13 +61,13 @@ class INSERT<T> implements DBAction<void> {
   }
 }
 
-class FIND<T> implements DBAction<List<Map<String, T>>> {
+class FIND<T> implements DBAction<Dataset<T>> {
   String key;
 
   FIND(this.key);
 
   @override
-  List<Map<String, T>> run(DBController db) {
+  Dataset<T> run(DBController db) {
     List<Map<String, T>> wrappedValues = [];
     Uint8List bytes = File('${db.actualDBStackPath!}.tp.db').readAsBytesSync();
     int offset = 0;
@@ -79,7 +78,6 @@ class FIND<T> implements DBAction<List<Map<String, T>>> {
 
     for (int i = 0; i < numRecords; i++) {
       int keyLen = getByte();
-      print(keyLen);
       final keyBytes = bytes.sublist(offset, offset + keyLen);
       offset += keyLen;
       final currentKey = String.fromCharCodes(keyBytes);
@@ -123,15 +121,56 @@ class FIND<T> implements DBAction<List<Map<String, T>>> {
   }
 }
 
-class GET implements DBAction<Map<String, dynamic>> {
+class GET implements DBAction<Stack<dynamic>> {
   @override
-  Map<String, dynamic> run(DBController db) {
-    Map<String, dynamic> stackDatasets = {};
+  Stack<dynamic> run(DBController db) {
+    Stack<dynamic> stackDatasets = {};
 
-    for (var line in WrapLines(ReadFile(db.actualDBStackPath!))) {
-      final List<String> secs = line.split(' :: ');
-      if (secs.length < 3) continue;
-      stackDatasets[secs[0].trim()] = secs[2].split('||')[0].trim();
+    Uint8List bytes = File('${db.actualDBStackPath!}.tp.db').readAsBytesSync();
+    int offset = 0;
+
+    int getByte() => bytes[offset++];
+
+    int numRecords = getByte();
+
+    for (int i = 0; i < numRecords; i++) {
+      int keyLen = getByte();
+      final keyBytes = bytes.sublist(offset, offset + keyLen);
+      offset += keyLen;
+      final currentKey = String.fromCharCodes(keyBytes);
+
+      int type = getByte();
+
+      int valueLen;
+      dynamic value;
+      switch (type) {
+        case 1:
+          valueLen = getByte();
+          value =
+              String.fromCharCodes(bytes.sublist(offset, offset + valueLen));
+          offset += valueLen;
+          stackDatasets[currentKey] = value;
+          break;
+        case 2:
+          value =
+              ByteData.sublistView(
+                    bytes.sublist(offset, offset + 8),
+                  ).getInt64(0, Endian.little);
+          offset += 8;
+          stackDatasets[currentKey] = value;
+          break;
+        case 3:
+          value = (bytes.sublist(offset, offset + 1)[0] == 1);
+          offset += 1;
+          stackDatasets[currentKey] = value;
+          break;
+        default:
+          throw Exception(Style().red("UNKNOW TYPE: $type"));
+      }
+
+      //stackDatasets[currentKey] = value;
+
+      if (offset >= bytes.length) break;
     }
 
     return stackDatasets;
@@ -145,9 +184,9 @@ class DBController {
   DBController DB(String name) {
     actualDBPath = 'Databases/$name';
 
-    if (!CheckDir('Databases/$name')) {
+    if (!CheckDir(actualDBPath!)) {
       CreateDir('Databases');
-      CreateDir('Databases/$name');
+      CreateDir(actualDBPath!);
       print(
         '${Style().green(name)} ${Style().bold(Style().green('has been initializated ✅.'.toUpperCase()))}',
       );
