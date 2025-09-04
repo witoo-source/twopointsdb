@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 
 class Style {
   final String _bold = '\x1B[1m';
@@ -12,8 +13,8 @@ class Style {
   String red(String text) => '$_red$text$_reset';
 }
 
-void WriteFile(String fileName, String content) {
-  File('$fileName.tp.db').writeAsStringSync(content, mode: FileMode.append);
+void WriteFile(String fileName, Uint8List content) {
+  File('$fileName.tp.db').writeAsBytesSync(content);
 }
 
 void CreateDir(String dirName) {

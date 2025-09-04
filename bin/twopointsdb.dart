@@ -5,8 +5,13 @@ void main() {
     DBController()
     .DB("MyDB")
     .Stack("mystack")
-    .Query<Stack<dynamic>>([
-      GET()
+    .Query<Dataset<String>>([
+      INSERT<String>([
+        {"test": "test1"}
+      ]),
+      FIND<String> (
+        "test"
+      )
     ])[0]
   );
 }
